@@ -1,4 +1,4 @@
-package de.web.ngthi;
+package de.web.ngthi.item;
 
 import java.util.List;
 
@@ -10,9 +10,11 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
+import de.web.ngthi.user.User;
+
 @EnableTransactionManagement
 @Repository
-public class ItemDAO_JDBC implements ItemDAO {
+public class ItemRepository implements ItemDAO {
 
 	private JdbcTemplate jdbcTemplateObject;
 

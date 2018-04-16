@@ -1,4 +1,4 @@
-package de.web.ngthi;
+package de.web.ngthi.item;
 
 import org.joda.time.DateTime;
 

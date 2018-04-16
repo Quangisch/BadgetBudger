@@ -1,4 +1,4 @@
-package de.web.ngthi;
+package de.web.ngthi.user;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;

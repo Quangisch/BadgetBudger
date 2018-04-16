@@ -1,4 +1,4 @@
-package de.web.ngthi.Logging;
+package de.web.ngthi.logging;
 
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;

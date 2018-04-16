@@ -1,10 +1,12 @@
-package de.web.ngthi;
+package de.web.ngthi.item;
 
 import java.util.List;
 
 import javax.sql.DataSource;
 
 import org.joda.time.DateTime;
+
+import de.web.ngthi.user.User;
 
 public interface ItemDAO {
 

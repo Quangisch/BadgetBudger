@@ -1,4 +1,4 @@
-package de.web.ngthi;
+package de.web.ngthi.user;
 
 import java.util.List;
 
@@ -11,11 +11,12 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 @EnableTransactionManagement
 @Repository
-public class UserDAO_JDBC implements UserDAO {
+public class UserRepository implements UserDAO {
 
 	private JdbcTemplate jdbcTemplateObject;
 	private final String TABLE = "User";
 	private final String USERNAME = "username";
+	private final String USERID = "userID";
 	
 	@Autowired
 	@Override
@@ -25,22 +26,14 @@ public class UserDAO_JDBC implements UserDAO {
 
 	@Override
 	public void create(String name) throws org.springframework.dao.DuplicateKeyException {
-		if(hasUser(name))
-			throw new DuplicateUserException(name);
-		
-		String SQL = String.format("insert into %s (%s) values (?)", TABLE, USERNAME);
+		String SQL = String.format("insert into %s (%s, %s) values (DEFAULT, ?)", TABLE, USERID, USERNAME);
 		jdbcTemplateObject.update(SQL, name);
 	}
 
 	@Override
 	public void delete(String name) {
-		if(hasUser(name)) {
-			String SQL = String.format("delete from %s where %s = ?", TABLE, USERNAME);
-			jdbcTemplateObject.update(SQL, name);
-		} else {
-			throw new UserNotFoundException(name);
-		}
-		
+		String SQL = String.format("delete from %s where %s = ?", TABLE, USERNAME);
+		jdbcTemplateObject.update(SQL, name);
 	}
 
 	@Override
@@ -63,18 +56,10 @@ public class UserDAO_JDBC implements UserDAO {
 
 	@Override
 	public void update(String oldName, String newName) {
-		if(!hasUser(oldName))
-			throw new UserNotFoundException(oldName);
-		if(hasUser(newName))
-			throw new DuplicateUserException(newName);
-		
-		String SQL = String.format("update %s set %s = ? where userID = ?", TABLE, USERNAME);
+		String SQL = String.format("update %s set %s = ? where %s = ?", TABLE, USERNAME, USERNAME);
 		jdbcTemplateObject.update(SQL, newName, oldName);
 	}
 	
-	private boolean hasUser(String username) {
-		return getUser(username) != null;
-	}
-	
+
 
 }
