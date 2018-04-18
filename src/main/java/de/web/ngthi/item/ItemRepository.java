@@ -11,10 +11,24 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
+import de.web.ngthi.user.User;
+
 @EnableTransactionManagement
 @Repository
 public class ItemRepository implements ItemDAO {
 
+	/*
+	 * private int userID;
+	private DateTime date;
+	private int position;
+	private String name;
+	private double price;
+	private String location;
+	 */
+	
+	private final String TABLE = "ITEM"; 
+	
+	
 	private JdbcTemplate jdbcTemplateObject;
 
 	@Autowired
@@ -40,22 +54,22 @@ public class ItemRepository implements ItemDAO {
 		params.add(userID);
 		
 		if(year.isPresent()) {
-			SQL.append(" AND YEAR = ?");
+			SQL.append(" AND " + ItemTable.YEAR + " = ?");
 			params.add(year.get());
 		} if(month.isPresent()) {
-			SQL.append(" AND MONTH = ?");
+			SQL.append(" AND " + ItemTable.MONTH + " = ?");
 			params.add(month);
 		} if(day.isPresent()) {
-			SQL.append(" AND DAY = ?");
+			SQL.append(" AND " + ItemTable.DAY + " = ?");
 			params.add(day.get());
 		} if(name.isPresent()) {
-			SQL.append(" AND ITEMNAME = ?");
+			SQL.append(" AND " + ItemTable.ITEMNAME + " = ?");
 			params.add(name.get());
 		} if(price.isPresent()) {
-			SQL.append(" AND PRICE = ?");
+			SQL.append(" AND " + ItemTable.PRICE + " = ?");
 			params.add(price.get());
 		} if(location.isPresent()) {
-			SQL.append(" AND LOCATION = ?");
+			SQL.append(" AND " + ItemTable.LOCATION + " = ?");
 			params.add(location.get());
 		}
 		
@@ -67,6 +81,65 @@ public class ItemRepository implements ItemDAO {
 		
 		List<Item> items = jdbcTemplateObject.query(SQL.toString(), params.toArray(), new ItemMapper());
 		return items;
+	}
+	
+	@Override
+	public Item[] addItems(Item[] items) {
+		List<Object[]> params = new LinkedList<>();
+		StringBuilder SQL = new StringBuilder("INSERT INTO " + TABLE);
+		StringBuilder paramNames = new StringBuilder(" (");
+		StringBuilder placeholder = new StringBuilder(" (");
+		for(int i = 0; i < ItemTable.values().length; i++) {
+			paramNames.append(ItemTable.values()[i]);
+			placeholder.append("?");
+			if(i < ItemTable.values().length - 1) {
+				paramNames.append(", ");
+				placeholder.append(", ");
+			} else {
+				placeholder.append(")");
+				paramNames.append(")");
+			}
+		}
+		
+		
+		for(Item i : items)
+			params.add(i.getFields());
+		
+		SQL.append(paramNames).append(" values ").append(placeholder);
+		jdbcTemplateObject.batchUpdate(SQL.toString(), params);
+		return items;
+	}
+
+	@Override
+	public void modifyItem(int itemID, Item modItem) {
+		List<Object> params = new LinkedList<>();
+		StringBuilder SQL = new StringBuilder(String.format("update %s set ", TABLE));
+		for(int i = 1; i < ItemTable.values().length; i++) {
+			SQL.append(ItemTable.values()[i] +  " = ? ");
+			params.add(modItem.getFields()[i]);
+			if(i < ItemTable.values().length - 1)
+				SQL.append(", ");
+		}
+		
+		SQL.append(String.format(" where %s = ? ", "ITEMID"));
+		params.add(itemID);
+		jdbcTemplateObject.update(SQL.toString(), params.toArray());
+	}
+
+
+	@Override
+	public Item[] removeItems(int... itemIDs) {
+		List<Item> items = new LinkedList<>();
+		
+		for(int itemID : itemIDs) {
+			String SQL = "SELECT * FROM ITEM WHERE itemID = ?";
+			items.addAll(jdbcTemplateObject.query(SQL, new Object[] {itemID}, new ItemMapper()));
+			
+			SQL = String.format("delete from %s where %s = ?", TABLE, "ITEMID");
+			jdbcTemplateObject.update(SQL, itemID);
+		}
+		
+		return items.toArray(new Item[items.size()]);
 	}
 
 

@@ -20,4 +20,10 @@ public interface ItemDAO {
 			Optional<Integer> limit);
 	
 	public List<Item> getAllItems(int userID);
+	
+	public Item[] addItems(Item[] items);
+	
+	public void modifyItem(int itemID, Item modItem);
+	
+	public Item[] removeItems(int...itemIDs);
 }

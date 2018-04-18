@@ -1,15 +1,19 @@
 package de.web.ngthi.dbms;
 
+import static org.assertj.core.api.Assertions.not;
 import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
 
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
 import org.hamcrest.collection.IsCollectionWithSize;
+import org.hamcrest.collection.IsEmptyCollection;
+import org.hamcrest.core.IsNull;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -74,5 +78,45 @@ public class ItemRepositoryTest {
 		Optional<Integer> limit = Optional.of(3);
 		List<Item> uList1 = itemRepository.getItems(userID, optInteger, optInteger, optInteger, optString, optDouble, optString, limit);
 		assertThat(uList1.size(), is(equalTo(3)));
+	}
+	
+	@Test
+	public void testAddItems() {
+		int userID = 11;
+		List<Item> items = new LinkedList<>();
+		int itemsCount = itemRepository.getAllItems(userID).size();
+		
+		items.add(new Item(userID, 2009, 10, 3, "Bluse1", 29.95, "Dortmund", 1));
+		items.add(new Item(userID, 2009, 10, 3, "Bluse2", 29.95, "Dortmund", 2));
+		items.add(new Item(userID, 2009, 10, 4, "Bluse3", 29.95, "Dortmund", 1));
+		items.add(new Item(userID, 2009, 11, 3, "Bluse4", 29.95, "Bonn", 1));
+		itemRepository.addItems(items.toArray(new Item[items.size()]));
+		
+		int itemsCountNew = itemRepository.getAllItems(userID).size();
+		assertThat(itemsCountNew, is(equalTo(itemsCount + items.size())));
+	}
+	
+	@Test
+	public void testModifyItem() {
+		Item modItem = new Item(1, 2009, 10, 3, "Bluse1", 29.95, "Dortmund", 1);
+		int itemsCount = itemRepository.getAllItems(1).size();
+		itemRepository.modifyItem(1, modItem);
+		int itemsCountNew = itemRepository.getAllItems(1).size();
+		assertThat(itemsCountNew, is(equalTo(itemsCount)));
+	}
+	
+	@Test
+	public void testRemoveItems() {
+		int[] itemIDS = new int[] {1, 2, 3, 6, 8, 9};
+		Item[] removed = itemRepository.removeItems(itemIDS);
+		assertThat(removed.length, is(equalTo(itemIDS.length)));
+		assertThat(itemRepository.getAllItems(1).size(), is(equalTo(1)));
+	}
+	
+	@Test
+	public void testRemoveItems2() {
+		int[] itemIDS = new int[] {99};
+		Item[] removed = itemRepository.removeItems(itemIDS);
+		assertThat(removed.length, is(equalTo(0)));
 	}
 }

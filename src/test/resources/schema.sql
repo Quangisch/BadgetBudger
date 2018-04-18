@@ -5,6 +5,7 @@ CREATE TABLE User (
 );
 
 CREATE TABLE Item (
+	itemID int(11) AUTO_INCREMENT,
 	userID int(11) NOT NULL,
 	year int(4) unsigned NOT NULL,
 	month int(2) unsigned NOT NULL,
@@ -13,5 +14,6 @@ CREATE TABLE Item (
 	itemname varchar(50) NOT NULL,
 	price DECIMAL(10,2) NOT NULL,
 	location varchar(50) NOT NULL,
-	PRIMARY KEY(userID, year, month, day, position)
+	CONSTRAINT Entry UNIQUE (userID, year, month, day, position),
+	PRIMARY KEY(itemID)
 );

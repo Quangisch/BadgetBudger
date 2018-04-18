@@ -6,36 +6,50 @@ import org.springframework.hateoas.ResourceSupport;
 public class Item extends ResourceSupport {
 
 	private int userID;
-	private DateTime date;
-	private int position;
-	private String name;
+	private int year, month, day;
+	private String itemname;
 	private double price;
 	private String location;
+	private int position;
 	
 	public Item() {
 		
 	}//JPA
 	
-	public Item(int userID, DateTime date, String name, double price, String location, int position) {
+	public Object[] getFields() {
+		return new Object[] { userID, year, month, day, itemname, price, location, position };
+	}
+	
+	public Item(int userID, int year, int month, int day, String name, double price, String location, int position) {
 		this.userID = userID;
-		this.date = date;
-		this.name = name;
+		this.year = year;
+		this.month = month;
+		this.day = day;
+		this.itemname = name;
 		this.price = price;
 		this.location = location;
 		this.position = position;
 	}
 	
-	public DateTime getDate() {
-		return date;
+
+	
+	public int getYear() {
+		return year;
 	}
-	public void setDate(DateTime date) {
-		this.date = date;
+	
+	public int getMonth() {
+		return month;
 	}
+	
+	public int getDay() {
+		return day;
+	}
+	
 	public String getName() {
-		return name;
+		return itemname;
 	}
 	public void setName(String name) {
-		this.name = name;
+		this.itemname = name;
 	}
 
 	public double getPrice() {
@@ -55,10 +69,6 @@ public class Item extends ResourceSupport {
 	}
 	public void setUserID(int userID) {
 		this.userID = userID;
-	}
-	
-	public String toString() {
-		return String.format("%s: %s \t%s \t%d \t%s", getClass().getSimpleName(), date.toString(), name, price, location);
 	}
 
 	public int getPosition() {
