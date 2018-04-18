@@ -1,8 +1,9 @@
 package de.web.ngthi.item;
 
 import org.joda.time.DateTime;
+import org.springframework.hateoas.ResourceSupport;
 
-public class Item {
+public class Item extends ResourceSupport {
 
 	private int userID;
 	private DateTime date;

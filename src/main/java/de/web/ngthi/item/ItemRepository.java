@@ -47,7 +47,7 @@ public class ItemRepository implements ItemDAO {
 
 	@Override
 	public List<Item> getItems(User user, DateTime date) {
-		return getItems(user.getName(), date.getYear(), date.getMonthOfYear(), date.getDayOfMonth());
+		return getItems(user.getUsername(), date.getYear(), date.getMonthOfYear(), date.getDayOfMonth());
 	}
 
 }

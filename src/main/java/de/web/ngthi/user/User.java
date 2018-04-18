@@ -1,44 +1,46 @@
 package de.web.ngthi.user;
 
-public class User {
+import org.springframework.hateoas.ResourceSupport;
 
-	private int id;
-	private String name;
+public class User extends ResourceSupport {
+
+	private int userID;
+	private String username;
 
 	private User() {
 		
 	} //for JPA
 	
 	public User(int id, String name) {
-		this.id = id;
-		this.name = name;
+		this.userID = id;
+		this.username = name;
 	}
 	
-	public String getName() {
-		return name;
+	public String getUsername() {
+		return username;
 	}
 
-	public void setName(String name) {
-		this.name = name;
+	public void setUsername(String name) {
+		this.username = name;
 	}
 	
-	public int getId() {
-		return id;
+	public int getUserId() {
+		return userID;
 	}
 
-	public void setId(int id) {
-		this.id = id;
+	public void setUserId(int id) {
+		this.userID = id;
 	}
 	
 	public String toString() {
-		return String.format("User: %s", name);
+		return String.format("User: %s", username);
 	}
 	
 	public boolean equals(Object o) {
 		if(o == null || !(o instanceof User))
 			return false;
 		User u = (User) o;
-		return id == u.id && name.equals(u.name);
+		return userID == u.userID && username.equals(u.username);
 	}
 
 }

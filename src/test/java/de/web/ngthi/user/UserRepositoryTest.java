@@ -16,17 +16,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DuplicateKeyException;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
-
-import de.web.ngthi.user.User;
-import de.web.ngthi.user.UserRepository;
 
 @SpringBootTest
 @Transactional
-@RunWith(SpringJUnit4ClassRunner.class)
+@RunWith(SpringRunner.class)
 @ActiveProfiles("test")
 public class UserRepositoryTest {
 
@@ -54,10 +50,10 @@ public class UserRepositoryTest {
 		String username = "Aladin";
 		
 		User u = userRepository.getUser(username);
-		assertThat(u.getName(), is(username));
+		assertThat(u.getUsername(), is(username));
 	}
 	
-	@Test(expected = EmptyResultDataAccessException.class)
+	@Test(expected = UserNotFoundException.class)
 	public void testGetNonexistantUser() {
 		String username = "Aladin3";
 		
@@ -67,7 +63,7 @@ public class UserRepositoryTest {
 	@Test
 	public void testUpdateUser() {
 		User u = userRepository.getUserList().get(0);
-		String oldname = u.getName();
+		String oldname = u.getUsername();
 		String newname = "Raichu";
 		logger.info(oldname + "->" + newname);
 		
@@ -79,20 +75,15 @@ public class UserRepositoryTest {
 	public void testDeleteUser() {
 		String username = "Aladin";
 		int sizeB = userRepository.getUserList().size();
-		
 		userRepository.delete(username);
 		int sizeNow = userRepository.getUserList().size();
 		assertThat(sizeNow, is(sizeB - 1));
 	}
 	
-	@Test
+	@Test(expected = UserNotFoundException.class)
 	public void testDeleteNonExistantUser() {
 		String username = "Aladin3";
-		int sizeB = userRepository.getUserList().size();
-		
 		userRepository.delete(username);
-		int sizeNow = userRepository.getUserList().size();
-		assertThat(sizeNow, is(sizeB));
 	}
 
 	@Test
