@@ -30,26 +30,26 @@ public class UserRepository implements UserDAO {
 	public User create(String name) throws DuplicateKeyException {
 		String SQL = String.format("insert into %s (%s, %s) values (DEFAULT, ?)", TABLE, USERID, USERNAME);
 		jdbcTemplateObject.update(SQL, name);
-		return getUser(name);
+		return getUserByName(name);
 		
 	}
 
 	@Override
-	public User delete(String name) throws UserNotFoundException {
-		User u = getUser(name);
-		String SQL = String.format("delete from %s where %s = ?", TABLE, USERNAME);
-		jdbcTemplateObject.update(SQL, name);
+	public User delete(int userID) throws UserNotFoundException {
+		User u = getUser(userID);
+		String SQL = String.format("delete from %s where %s = ?", TABLE, USERID);
+		jdbcTemplateObject.update(SQL, userID);
 		return u;
 	}
 
 	@Override
-	public User getUser(String name) throws UserNotFoundException {
+	public User getUser(int userID) throws UserNotFoundException {
 		User user = null;
 		try {
-			String SQL = String.format("select * from %s where %s = ?", TABLE, USERNAME);
-			user = jdbcTemplateObject.queryForObject(SQL, new Object[] { name }, new UserMapper());
+			String SQL = String.format("select * from %s where %s = ?", TABLE, USERID);
+			user = jdbcTemplateObject.queryForObject(SQL, new Object[] { userID }, new UserMapper());
 		} catch(EmptyResultDataAccessException e) {
-			throw new UserNotFoundException(name);
+			throw new UserNotFoundException(userID);
 		}
 		
 		return user;
@@ -63,10 +63,15 @@ public class UserRepository implements UserDAO {
 	}
 
 	@Override
-	public User update(String oldName, String newName) throws UserNotFoundException, DuplicateKeyException {
-		String SQL = String.format("update %s set %s = ? where %s = ?", TABLE, USERNAME, USERNAME);
-		jdbcTemplateObject.update(SQL, newName, oldName);
-		return getUser(newName);
+	public User update(int userID, String newName) throws UserNotFoundException, DuplicateKeyException {
+		String SQL = String.format("update %s set %s = ? where %s = ?", TABLE, USERNAME, USERID);
+		jdbcTemplateObject.update(SQL, newName, userID);
+		return getUser(userID);
+	}
+	
+	private User getUserByName(String name) {
+		String SQL = String.format("select * from %s where %s = ?", TABLE, USERNAME);
+		return jdbcTemplateObject.queryForObject(SQL, new Object[] { name }, new UserMapper());
 	}
 
 

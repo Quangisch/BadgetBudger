@@ -9,11 +9,11 @@ public interface UserDAO {
 	public void setDataSource(DataSource ds);
 	
 	public User create(String name);
-	public User delete(String name);
+	public User delete(int id);
 
-	public User getUser(String name);
+	public User getUser(int id);
 	public List<User> getUserList();
 	
-	public User update(String oldName, String newName);
+	public User update(int userID, String newName);
 	
 }

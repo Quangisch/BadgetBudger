@@ -81,14 +81,14 @@ public class UserRestControllerTest {
 		User oldUser = new User(2, "Tom");
 		User newUser = new User(2, "Tommy");
 		
-		given(userController.updateUser(oldUser.getUsername(), newUser.getUsername()))
+		given(userController.updateUser(oldUser.getUserID(), newUser.getUsername()))
 				.willReturn(new ResponseEntity<User>(newUser, HttpStatus.OK));
 		
-		mvc.perform(put(PATH + "/" + oldUser.getUsername()).param("newname", newUser.getUsername())
+		mvc.perform(put(PATH + "/" + oldUser.getUserID()).param("newname", newUser.getUsername())
 				.contentType(APPLICATION_JSON))
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.username", is(newUser.getUsername())))
-				.andExpect(jsonPath("$.userId", is(newUser.getUserId())));
+				.andExpect(jsonPath("$.userID", is(newUser.getUserID())));
 	}
 	
 	

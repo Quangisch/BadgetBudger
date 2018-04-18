@@ -1,4 +1,4 @@
-package de.web.ngthi.user;
+package de.web.ngthi.dbms;
 
 
 import static org.hamcrest.CoreMatchers.allOf;
@@ -20,6 +20,10 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
 
+import de.web.ngthi.user.User;
+import de.web.ngthi.user.UserNotFoundException;
+import de.web.ngthi.user.UserRepository;
+
 @SpringBootTest
 @Transactional
 @RunWith(SpringRunner.class)
@@ -28,7 +32,7 @@ public class UserRepositoryTest {
 
 	@Autowired
 	private UserRepository userRepository;
-	final Logger logger = LoggerFactory.getLogger(UserRepository.class);
+	final Logger logger = LoggerFactory.getLogger(UserRepositoryTest.class);
 	
 	@Test
 	public void testCreateUser() {
@@ -47,43 +51,43 @@ public class UserRepositoryTest {
 	
 	@Test
 	public void testGetUser() {
-		String username = "Aladin";
+		int userID = 1;
 		
-		User u = userRepository.getUser(username);
-		assertThat(u.getUsername(), is(username));
+		User u = userRepository.getUser(userID);
+		assertThat(u.getUserID(), is(userID));
 	}
 	
 	@Test(expected = UserNotFoundException.class)
 	public void testGetNonexistantUser() {
-		String username = "Aladin3";
+		int userid = 123;
 		
-		userRepository.getUser(username);
+		userRepository.getUser(userid);
 	}
 	
 	@Test
 	public void testUpdateUser() {
 		User u = userRepository.getUserList().get(0);
-		String oldname = u.getUsername();
+		int userid = u.getUserID();
 		String newname = "Raichu";
-		logger.info(oldname + "->" + newname);
+		logger.info(userid + "->" + newname);
 		
-		userRepository.update(oldname, newname);
+		userRepository.update(userid, newname);
 		
 	}
 
 	@Test
 	public void testDeleteUser() {
-		String username = "Aladin";
+		int userid = 1;
 		int sizeB = userRepository.getUserList().size();
-		userRepository.delete(username);
+		userRepository.delete(userid);
 		int sizeNow = userRepository.getUserList().size();
 		assertThat(sizeNow, is(sizeB - 1));
 	}
 	
 	@Test(expected = UserNotFoundException.class)
 	public void testDeleteNonExistantUser() {
-		String username = "Aladin3";
-		userRepository.delete(username);
+		int userid = 123;
+		userRepository.delete(userid);
 	}
 
 	@Test

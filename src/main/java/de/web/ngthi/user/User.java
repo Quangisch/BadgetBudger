@@ -7,6 +7,7 @@ public class User extends ResourceSupport {
 	private int userID;
 	private String username;
 
+	@SuppressWarnings("unused")
 	private User() {
 		
 	} //for JPA
@@ -24,7 +25,7 @@ public class User extends ResourceSupport {
 		this.username = name;
 	}
 	
-	public int getUserId() {
+	public int getUserID() {
 		return userID;
 	}
 
