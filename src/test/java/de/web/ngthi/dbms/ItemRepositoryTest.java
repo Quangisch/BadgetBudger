@@ -1,6 +1,5 @@
 package de.web.ngthi.dbms;
 
-import static org.assertj.core.api.Assertions.not;
 import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
@@ -12,8 +11,6 @@ import java.util.List;
 import java.util.Optional;
 
 import org.hamcrest.collection.IsCollectionWithSize;
-import org.hamcrest.collection.IsEmptyCollection;
-import org.hamcrest.core.IsNull;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -61,6 +58,8 @@ public class ItemRepositoryTest {
 		Optional<Integer> year = Optional.of(2007);
 		List<Item> uList1 = itemRepository.getItems(userID, year, optInteger, optInteger, optString, optDouble, optString, optInteger);
 		assertThat(uList1.size(), is(equalTo(1)));
+		assertThat(uList1.get(0).getUserID(), is(equalTo(userID)));
+		assertThat(uList1.get(0).getYear(), is(equalTo(year.get())));
 	}
 	
 	@Test

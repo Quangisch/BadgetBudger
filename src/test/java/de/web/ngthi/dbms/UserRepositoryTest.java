@@ -36,11 +36,10 @@ public class UserRepositoryTest {
 	
 	@Test
 	public void testCreateUser() {
-		int oldSize = userRepository.getUserList().size();
-		String username = "Erwin";
-		
-		userRepository.create(username);
-		assertThat(userRepository.getUserList().size(), is(oldSize + 1));
+		int oldSize = userRepository.findAll().size();
+		User u = new User(99, "Erwin");
+		userRepository.save(u);
+		assertThat(userRepository.findAll().size(), is(oldSize + 1));
 	}
 	
 	@Test(expected = DuplicateKeyException.class)
@@ -53,7 +52,7 @@ public class UserRepositoryTest {
 	public void testGetUser() {
 		int userID = 1;
 		
-		User u = userRepository.getUser(userID);
+		User u = userRepository.findById(userID).get();
 		assertThat(u.getUserID(), is(userID));
 	}
 	
@@ -61,26 +60,26 @@ public class UserRepositoryTest {
 	public void testGetNonexistantUser() {
 		int userid = 123;
 		
-		userRepository.getUser(userid);
+		userRepository.findById(userid);
 	}
 	
 	@Test
 	public void testUpdateUser() {
-		User u = userRepository.getUserList().get(0);
+		User u = userRepository.findAll().get(0);
 		int userid = u.getUserID();
-		String newname = "Raichu";
-		logger.info(userid + "->" + newname);
+		User updatedUser = new User(u.getUserID(), "Raichu");
+		logger.info(userid + ":  " + u.getUsername() + "->" + updatedUser.getUsername());
 		
-		userRepository.update(userid, newname);
+		userRepository.update(userid, updatedUser);
 		
 	}
 
 	@Test
 	public void testDeleteUser() {
 		int userid = 1;
-		int sizeB = userRepository.getUserList().size();
+		int sizeB = userRepository.findAll().size();
 		userRepository.delete(userid);
-		int sizeNow = userRepository.getUserList().size();
+		int sizeNow = userRepository.findAll().size();
 		assertThat(sizeNow, is(sizeB - 1));
 	}
 	
@@ -92,7 +91,7 @@ public class UserRepositoryTest {
 
 	@Test
 	public void testGetAllUsers() {
-		List<User> users = userRepository.getUserList();
+		List<User> users = userRepository.findAll();
 		
 		assertThat(users, allOf(notNullValue(), IsCollectionWithSize.hasSize(6)));
 	}

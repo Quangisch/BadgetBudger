@@ -5,9 +5,9 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ResponseStatus(HttpStatus.NOT_FOUND)
 @SuppressWarnings("serial")
-class DuplicateUserException extends RuntimeException {
+class DuplicateUserNameException extends RuntimeException {
 
-	public DuplicateUserException(String username) {
+	public DuplicateUserNameException(String username) {
 		super("User '" + username + "' already exists.");
 	}
 }

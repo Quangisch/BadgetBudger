@@ -1,9 +1,11 @@
+DROP TABLE IF EXISTS User;
 CREATE TABLE User (
 	 userID int(11) AUTO_INCREMENT,
 	 username varchar(50) NOT NULL UNIQUE,
 	 PRIMARY KEY(userID)
 );
 
+DROP TABLE IF EXISTS Item;
 CREATE TABLE Item (
 	itemID int(11) AUTO_INCREMENT,
 	userID int(11) NOT NULL,

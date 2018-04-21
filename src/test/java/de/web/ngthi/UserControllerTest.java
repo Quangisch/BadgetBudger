@@ -10,24 +10,26 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import java.util.LinkedList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.HttpStatus;
+import org.springframework.hateoas.Resources;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
 import de.web.ngthi.user.User;
+import de.web.ngthi.user.UserResource;
 
 @RunWith(SpringRunner.class)
-@WebMvcTest(UserRestController.class)
-public class UserRestControllerTest {
+@WebMvcTest(UserController.class)
+public class UserControllerTest {
 
 	final String PATH = "/users";
 	
@@ -35,13 +37,13 @@ public class UserRestControllerTest {
 	private MockMvc mvc;
 
 	@MockBean
-	private UserRestController userController;
+	private UserController userController;
 	
 	
 	@Test
 	public void testCreateUser() throws Exception {
 		User u = new User(2, "Tom");
-		given(userController.createUser(u.getUsername())).willReturn(new ResponseEntity<>(u, HttpStatus.CREATED));
+		given(userController.createUser(u)).willReturn(ResponseEntity.ok(new UserResource(u)));
 		mvc.perform(post(PATH).param("username", u.getUsername())
 			.contentType(APPLICATION_JSON))
 			.andExpect(status().isCreated())
@@ -54,10 +56,9 @@ public class UserRestControllerTest {
 	
 	@Test
 	public void testGetAllUsers() throws Exception {
-		List<User> l = new LinkedList<>();
-		l.add(new User(2, "Tom"));
-		l.add(new User(3, "Phil"));
-		given(userController.getAllUsers()).willReturn(l);
+		List<User> l = Arrays.asList(new User(2, "Tom"), new User(3, "Phil"));
+		Resources<UserResource> resources = new Resources<>(l.stream().map(UserResource::new).collect(Collectors.toList()));
+		given(userController.getAllUsers()).willReturn(ResponseEntity.ok(resources));
 		
 		mvc.perform(get(PATH)
 			.contentType(APPLICATION_JSON))
@@ -81,8 +82,8 @@ public class UserRestControllerTest {
 		User oldUser = new User(2, "Tom");
 		User newUser = new User(2, "Tommy");
 		
-		given(userController.updateUser(oldUser.getUserID(), newUser.getUsername()))
-				.willReturn(new ResponseEntity<User>(newUser, HttpStatus.OK));
+		given(userController.updateUser(oldUser.getUserID(), newUser))
+				.willReturn(ResponseEntity.ok(new UserResource(newUser)));
 		
 		mvc.perform(put(PATH + "/" + oldUser.getUserID()).param("newname", newUser.getUsername())
 				.contentType(APPLICATION_JSON))

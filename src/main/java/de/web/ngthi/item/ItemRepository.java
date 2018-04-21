@@ -11,8 +11,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
-import de.web.ngthi.user.User;
-
 @EnableTransactionManagement
 @Repository
 public class ItemRepository implements ItemDAO {
