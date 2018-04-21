@@ -27,20 +27,22 @@ public class UserRepository implements UserDAO {
 	}
 
 	@Override
-	public User save(User user) {
+	public Optional<User> save(User user) {
 		String name = user.getUsername();
 		if(findByName(name).isPresent())
 			throw new DuplicateUserException(name);
-		
 		String SQL = String.format("insert into %s (%s, %s) values (DEFAULT, ?)", TABLE, USERID, USERNAME);
 		jdbcTemplateObject.update(SQL, name);
-		return findByName(name).get();
+		return Optional.of(findByName(name).get());
 		
 	}
 
 	@Override
-	public User delete(int userID) throws UserNotFoundException {
-		User u = getSingleUser(userID);
+	public Optional<User> delete(int userID) {
+		Optional<User> u = findById(userID);
+		if(!u.isPresent())
+			throw new UserNotFoundException(userID);
+		
 		String SQL = String.format("delete from %s where %s = ?", TABLE, USERID);
 		jdbcTemplateObject.update(SQL, userID);
 		return u;
@@ -48,7 +50,15 @@ public class UserRepository implements UserDAO {
 
 	@Override
 	public Optional<User> findById(int userID) {
-		return Optional.of(getSingleUser(userID));
+		User user = null;
+		try {
+			String SQL = String.format("select * from %s where %s = ?", TABLE, USERID);
+			user = jdbcTemplateObject.queryForObject(SQL, new Object[] { userID }, new UserMapper());
+		} catch(EmptyResultDataAccessException e) {
+			return Optional.empty();
+		}
+		
+		return Optional.of(user);
 	}
 	
 	@Override
@@ -59,10 +69,15 @@ public class UserRepository implements UserDAO {
 	}
 
 	@Override
-	public User update(int userID, User userUpdated) {
+	public Optional<User> update(int userID, User userUpdated) {
+		if(!findById(userID).isPresent())
+			throw new UserNotFoundException(userID);
+		if(findByName(userUpdated.getUsername()).isPresent())
+			throw new DuplicateUserException(userUpdated.getUsername());
+		
 		String SQL = String.format("update %s set %s = ? where %s = ?", TABLE, USERNAME, USERID);
 		jdbcTemplateObject.update(SQL, userUpdated.getUsername(), userID);
-		return getSingleUser(userID);
+		return findById(userID);
 	}
 	
 	@Override
@@ -74,18 +89,7 @@ public class UserRepository implements UserDAO {
 			return Optional.empty();
 		}
 	}
-	
-	private User getSingleUser(int userID) throws UserNotFoundException {
-		User user = null;
-		try {
-			String SQL = String.format("select * from %s where %s = ?", TABLE, USERID);
-			user = jdbcTemplateObject.queryForObject(SQL, new Object[] { userID }, new UserMapper());
-		} catch(EmptyResultDataAccessException e) {
-			throw new UserNotFoundException(userID);
-		}
-		
-		return user;
-	}
+
 
 
 }

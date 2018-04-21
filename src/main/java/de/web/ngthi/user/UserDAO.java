@@ -9,13 +9,13 @@ public interface UserDAO {
 
 	public void setDataSource(DataSource ds);
 	
-	public User save(User user);
-	public User delete(int id);
+	public Optional<User> save(User user);
+	public Optional<User> delete(int id);
 
 	public Optional<User> findById(int id);
 	public Optional<User> findByName(String userName);
 	public Collection<User> findAll();
 	
-	public User update(int userID, User userUpdated);
+	public Optional<User> update(int userID, User userUpdated);
 	
 }
