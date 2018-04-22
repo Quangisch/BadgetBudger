@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.Optional;
 
 import org.hamcrest.collection.IsCollectionWithSize;
-import org.hamcrest.core.IsNull;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
