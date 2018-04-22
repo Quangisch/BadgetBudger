@@ -4,6 +4,6 @@ package de.web.ngthi.user;
 public class DuplicateUserException extends RuntimeException {
 
 	public DuplicateUserException(String username) {
-		super("User '" + username + "' already exists.");
+		super("User with username '" + username + "' already exists.");
 	}
 }

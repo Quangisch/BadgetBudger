@@ -11,7 +11,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 public class Item extends ResourceSupport {
-
+	
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private int itemID;

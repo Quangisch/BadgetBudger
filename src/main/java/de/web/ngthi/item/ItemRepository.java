@@ -1,5 +1,6 @@
 package de.web.ngthi.item;
 
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
@@ -13,7 +14,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 @EnableTransactionManagement
 @Repository
-public class ItemRepository implements ItemDAO {
+public class ItemRepository implements IItemDAO {
 
 	/*
 	 * private int userID;
@@ -34,15 +35,9 @@ public class ItemRepository implements ItemDAO {
 	public void setDataSource(DataSource dataSource) {
 		this.jdbcTemplateObject = new JdbcTemplate(dataSource);
 	}
-
-	public List<Item> getAllItems(int userID) {
-		String SQL = "SELECT * FROM ITEM WHERE userID = ?";
-		List<Item> items = jdbcTemplateObject.query(SQL, new Object[] { userID }, new ItemMapper());
-		return items;
-	}
-
+	
 	@Override
-	public List<Item> getItems( int userID, 
+	public List<Item> query( int userID, 
 			Optional<Integer> year, Optional<Integer> month, Optional<Integer> day,  
 			Optional<String> name, Optional<Double> price, Optional<String> location,
 			Optional<Integer> limit) {
@@ -81,13 +76,19 @@ public class ItemRepository implements ItemDAO {
 		return items;
 	}
 	
+
 	@Override
-	public Item[] addItems(Item[] items) {
+	public Item save(Item item) {
+		return save(Collections.singletonList(item)).iterator().next();
+	}
+	
+	@Override
+	public List<Item> save(Iterable<Item> items) {
 		List<Object[]> params = new LinkedList<>();
 		StringBuilder SQL = new StringBuilder("INSERT INTO " + TABLE);
 		StringBuilder paramNames = new StringBuilder(" (");
 		StringBuilder placeholder = new StringBuilder(" (");
-		for(int i = 0; i < ItemTable.values().length; i++) {
+		for(int i = 1; i < ItemTable.values().length; i++) {
 			paramNames.append(ItemTable.values()[i]);
 			placeholder.append("?");
 			if(i < ItemTable.values().length - 1) {
@@ -99,22 +100,27 @@ public class ItemRepository implements ItemDAO {
 			}
 		}
 		
-		
 		for(Item i : items)
 			params.add(i.getFields());
 		
 		SQL.append(paramNames).append(" values ").append(placeholder);
 		jdbcTemplateObject.batchUpdate(SQL.toString(), params);
-		return items;
+		
+		List<Item> saved = new LinkedList<>();
+		items.forEach(u -> saved.add(u));
+		return saved;
 	}
 
 	@Override
-	public void modifyItem(int itemID, Item modItem) {
+	public void update(int itemID, Item modItem) {
+		if(!exsists(itemID))
+			throw new ItemNotFoundException(itemID);
+		
 		List<Object> params = new LinkedList<>();
 		StringBuilder SQL = new StringBuilder(String.format("update %s set ", TABLE));
 		for(int i = 1; i < ItemTable.values().length; i++) {
 			SQL.append(ItemTable.values()[i] +  " = ? ");
-			params.add(modItem.getFields()[i]);
+			params.add(modItem.getFields()[i - 1]);
 			if(i < ItemTable.values().length - 1)
 				SQL.append(", ");
 		}
@@ -124,9 +130,37 @@ public class ItemRepository implements ItemDAO {
 		jdbcTemplateObject.update(SQL.toString(), params.toArray());
 	}
 
+	@Override
+	public boolean exsists(int itemID) {
+		String SQL = "SELECT * FROM ITEM WHERE itemID = ?";
+		return !jdbcTemplateObject.query(SQL, new Object[] {itemID}, new ItemMapper()).isEmpty();
+	}
 
 	@Override
-	public Item[] removeItems(int... itemIDs) {
+	public Item findByItemID(int itemID) {
+		String SQL = "SELECT * FROM ITEM WHERE itemID = ?";
+		List<Item> items = jdbcTemplateObject.query(SQL, new Object[] { itemID }, new ItemMapper());
+		return items.get(0);
+	}
+
+	@Override
+	public List<Item> findByUserID(int userID) {
+		String SQL = "SELECT * FROM ITEM WHERE userID = ?";
+		List<Item> items = jdbcTemplateObject.query(SQL, new Object[] { userID }, new ItemMapper());
+		return items;
+	}
+
+
+	@Override
+	public Item remove(int itemID) {
+		List<Item> items = remove(Collections.singletonList(itemID));
+		if(items.isEmpty())
+			throw new ItemNotFoundException(itemID);
+		return items.get(0);
+	}
+	
+	@Override
+	public List<Item> remove(Iterable<Integer> itemIDs) {
 		List<Item> items = new LinkedList<>();
 		
 		for(int itemID : itemIDs) {
@@ -137,9 +171,22 @@ public class ItemRepository implements ItemDAO {
 			jdbcTemplateObject.update(SQL, itemID);
 		}
 		
-		return items.toArray(new Item[items.size()]);
+		return items;
 	}
 
 
+	@Override
+	public List<Item> removeAll(int userID) {
+		List<Item> remove = findByUserID(userID);
+		String SQL = String.format("delete from %s where %s = ?", TABLE, "userID");
+		jdbcTemplateObject.update(SQL, userID);
+		return remove;
+	}
+
+	@Override
+	public long count(int userID) {
+		String SQL = "SELECT COUNT(*) FROM ITEM WHERE userID = ?";
+		return jdbcTemplateObject.queryForObject(SQL, new Object[] { userID }, Integer.class);
+	}
 
 }

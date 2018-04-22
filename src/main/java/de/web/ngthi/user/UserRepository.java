@@ -1,19 +1,17 @@
 package de.web.ngthi.user;
 
 import java.util.List;
-import java.util.Optional;
 
 import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 @EnableTransactionManagement
 @Repository
-public class UserRepository implements UserDAO {
+public class UserRepository implements IUserDAO {
 
 	private JdbcTemplate jdbcTemplateObject;
 	private final String TABLE = "User";
@@ -27,38 +25,43 @@ public class UserRepository implements UserDAO {
 	}
 
 	@Override
-	public Optional<User> save(User user) {
+	public User save(User user) {
 		String name = user.getUsername();
-		if(findByName(name).isPresent())
+		if(findByName(name) != null)
 			throw new DuplicateUserException(name);
+		
 		String SQL = String.format("insert into %s (%s, %s) values (DEFAULT, ?)", TABLE, USERID, USERNAME);
 		jdbcTemplateObject.update(SQL, name);
-		return Optional.of(findByName(name).get());
-		
+		return findByName(name);
 	}
 
 	@Override
-	public Optional<User> delete(int userID) {
-		Optional<User> u = findById(userID);
-		if(!u.isPresent())
-			throw new UserNotFoundException(userID);
-		
+	public User delete(int userID) {
+		User u = findById(userID);
 		String SQL = String.format("delete from %s where %s = ?", TABLE, USERID);
 		jdbcTemplateObject.update(SQL, userID);
 		return u;
 	}
 
 	@Override
-	public Optional<User> findById(int userID) {
-		User user = null;
-		try {
+	public User findById(int userID) {
+		if(exists(userID)) {
 			String SQL = String.format("select * from %s where %s = ?", TABLE, USERID);
-			user = jdbcTemplateObject.queryForObject(SQL, new Object[] { userID }, new UserMapper());
-		} catch(EmptyResultDataAccessException e) {
-			return Optional.empty();
+			return jdbcTemplateObject.queryForObject(SQL, new Object[] { userID }, new UserMapper());
+		} else {
+			throw new UserNotFoundException(userID);
+		}
+	}
+	
+	@Override
+	public User findByName(String name) {
+		try {
+			String SQL = String.format("select * from %s where %s = ?", TABLE, USERNAME);
+			return jdbcTemplateObject.queryForObject(SQL, new Object[] { name }, new UserMapper());
+		} catch(Exception e) {
+			return null;
 		}
 		
-		return Optional.of(user);
 	}
 	
 	@Override
@@ -69,27 +72,26 @@ public class UserRepository implements UserDAO {
 	}
 
 	@Override
-	public Optional<User> update(int userID, User userUpdated) {
-		if(!findById(userID).isPresent())
+	public User update(int userID, User userUpdated) {
+		if(!exists(userID))
 			throw new UserNotFoundException(userID);
-		if(findByName(userUpdated.getUsername()).isPresent())
-			throw new DuplicateUserException(userUpdated.getUsername());
 		
 		String SQL = String.format("update %s set %s = ? where %s = ?", TABLE, USERNAME, USERID);
 		jdbcTemplateObject.update(SQL, userUpdated.getUsername(), userID);
 		return findById(userID);
 	}
-	
+
 	@Override
-	public Optional<User> findByName(String name) {
+	public boolean exists(int id) {
+		User user = null;
 		try {
-			String SQL = String.format("select * from %s where %s = ?", TABLE, USERNAME);
-			return Optional.of(jdbcTemplateObject.queryForObject(SQL, new Object[] { name }, new UserMapper()));
+			String SQL = String.format("select * from %s where %s = ?", TABLE, USERID);
+			user = jdbcTemplateObject.queryForObject(SQL, new Object[] { id }, new UserMapper());
+			
+			return user != null;
 		} catch(Exception e) {
-			return Optional.empty();
+			return false;
 		}
 	}
-
-
 
 }

@@ -43,7 +43,8 @@ public class UserControllerTest {
 	@Test
 	public void testCreateUser() throws Exception {
 		User u = new User(2, "Tom");
-		given(userController.createUser(u)).willReturn(ResponseEntity.ok(new UserResource(u)));
+		given(userController.addUser(u)).willReturn(ResponseEntity.ok(new UserResource(u)));
+		
 		mvc.perform(post(PATH).param("username", u.getUsername())
 			.contentType(APPLICATION_JSON))
 			.andExpect(status().isCreated())

@@ -15,11 +15,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.dao.DuplicateKeyException;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
 
+import de.web.ngthi.user.DuplicateUserException;
 import de.web.ngthi.user.User;
 import de.web.ngthi.user.UserNotFoundException;
 import de.web.ngthi.user.UserRepository;
@@ -42,7 +42,7 @@ public class UserRepositoryTest {
 		assertThat(userRepository.findAll().size(), is(oldSize + 1));
 	}
 	
-	@Test(expected = DuplicateKeyException.class)
+	@Test(expected = DuplicateUserException.class)
 	public void testcreateDuplicateUser() {
 		testCreateUser();
 		testCreateUser();
@@ -52,14 +52,13 @@ public class UserRepositoryTest {
 	public void testGetUser() {
 		int userID = 1;
 		
-		User u = userRepository.findById(userID).get();
+		User u = userRepository.findById(userID);
 		assertThat(u.getUserID(), is(userID));
 	}
 	
 	@Test(expected = UserNotFoundException.class)
 	public void testGetNonexistantUser() {
 		int userid = 123;
-		
 		userRepository.findById(userid);
 	}
 	

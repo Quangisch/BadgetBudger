@@ -21,7 +21,7 @@ import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBui
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import de.web.ngthi.user.User;
-import de.web.ngthi.user.UserDAO;
+import de.web.ngthi.user.IUserDAO;
 import de.web.ngthi.user.UserResource;
 
 @Configuration
@@ -29,17 +29,17 @@ import de.web.ngthi.user.UserResource;
 @RequestMapping(value = "/users", produces = "application/hal+json")
 public class UserController {
 	
-	private UserDAO userRepository;
+	private IUserDAO userRepository;
 	
 	@Autowired
-	UserController(UserDAO userRepository) {
+	UserController(IUserDAO userRepository) {
 		this.userRepository = userRepository;
 	}
 	
 	@PostMapping
-	public ResponseEntity<UserResource> createUser(@RequestBody final User user) {
+	public ResponseEntity<UserResource> addUser(@RequestBody final User user) {
 		User newUser = new User(user);
-		newUser = userRepository.save(newUser).get();
+		newUser = userRepository.save(newUser);
 		final URI uri = MvcUriComponentsBuilder.fromController(getClass())
 				.path("/{userid}").buildAndExpand(newUser.getUserID()).toUri();
 		return ResponseEntity.created(uri).body(new UserResource(newUser));
@@ -56,13 +56,13 @@ public class UserController {
 	
 	@GetMapping("/{userid}")
 	public ResponseEntity<UserResource> get(@PathVariable(value = "userid") int userID) {
-		User u = userRepository.findById(userID).get();
+		User u = userRepository.findById(userID);
 		return ResponseEntity.ok(new UserResource(u));
 	}
 	
 	@DeleteMapping("/{userid}")
-	public ResponseEntity<UserResource> deleteUser(@PathVariable(value = "userid") int userid) {
-		User delU = userRepository.delete(userid).get();
+	public ResponseEntity<UserResource> removeUser(@PathVariable(value = "userid") int userid) {
+		User delU = userRepository.delete(userid);
 		return ResponseEntity.ok(new UserResource(delU));
 	}
 	
@@ -70,7 +70,7 @@ public class UserController {
 	public ResponseEntity<UserResource> updateUser(
 				@PathVariable(value = "userid") int userid,
 				@RequestBody User userUpdated) {
-		User updated = userRepository.update(userid, userUpdated).get();
+		User updated = userRepository.update(userid, userUpdated);
 		return ResponseEntity.ok(new UserResource(updated));
 	}
 

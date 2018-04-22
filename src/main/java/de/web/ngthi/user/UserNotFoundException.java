@@ -4,6 +4,6 @@ package de.web.ngthi.user;
 public class UserNotFoundException extends RuntimeException {
 
 	public UserNotFoundException(int id) {
-		super("Could not find user with id: " + id);
+		super("No User with id: " + id);
 	}
 }

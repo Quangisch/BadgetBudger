@@ -1,6 +1,5 @@
 package de.web.ngthi;
 
-import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,24 +14,24 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import de.web.ngthi.item.IItemDAO;
 import de.web.ngthi.item.Item;
-import de.web.ngthi.item.ItemDAO;
 
 @Configuration
 @RestController
 @RequestMapping("users/{userid}/items/")
 public class ItemController {
 
-	private ItemDAO itemRepository;
+	private IItemDAO itemRepository;
 	
 	@Autowired
-	ItemController(ItemDAO itemRepository) {
+	ItemController(IItemDAO itemRepository) {
 		this.itemRepository = itemRepository;
 	}
 	
 
 	@GetMapping
-	public List<Item> getItems(
+	public Iterable<Item> getItems(
 			@PathVariable(value = "userid") int userID,
 			@RequestParam(value = "year", required = false) Optional<Integer> year,
 			@RequestParam(value = "month", required = false) Optional<Integer> month,
@@ -42,30 +41,29 @@ public class ItemController {
 			@RequestParam(value = "location", required = false) Optional<String> location,
 			@RequestParam(value = "limit", required = false) Optional<Integer> limit){
 		
-		return itemRepository.getItems(userID, year, month, day, itemname, price, location, limit);
+		return itemRepository.query(userID, year, month, day, itemname, price, location, limit);
 	}
 	
 	@PostMapping
-	public Item[] addItems(
+	public Iterable<Item> addItems(
 			@PathVariable(value = "userid") int userID,
-			@RequestBody Item[] items) {
-		return itemRepository.addItems(items);
+			@RequestBody Iterable<Item> items) {
+		return itemRepository.save(items);
 	}
 	
 	@PutMapping
-	public void modifyItem(
+	public void updateItem(
 			@PathVariable(value = "userid") int userID,
 			@RequestParam(value = "itemID") int itemID,
 			@RequestBody Item modItem) {
-		itemRepository.modifyItem(itemID, modItem);
-		
+		itemRepository.update(itemID, modItem);
 	}
 	
 	@DeleteMapping
-	public Item[] removeItems(
+	public Iterable<Item> removeItems(
 			@PathVariable(value = "userid") int userID,
-			@RequestBody int[] itemIDs) {
-		return itemRepository.removeItems(itemIDs);
+			@RequestBody Iterable<Integer> itemIDs) {
+		return itemRepository.remove(itemIDs);
 	}
 
 }
